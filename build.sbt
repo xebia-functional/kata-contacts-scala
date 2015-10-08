@@ -9,5 +9,5 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "junit" % "junit" % "4.11" % "test",
-  "org.mockito" % "mockito-all" % "1.10.19" % "test")
+  "org.specs2" %% "specs2-core" % "3.6.4" % "test",
+  "org.specs2" %% "specs2-mock" % "3.6.4" % "test")
