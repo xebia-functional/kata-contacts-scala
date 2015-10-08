@@ -34,6 +34,32 @@ trait ContactsListPresenterSpecification
 
   }
 
+  trait EmptyContactList {
+
+    self: ContactsListPresenterScope =>
+
+    getContacts.execute returns Seq.empty
+
+  }
+
+  trait PopulatedContactList {
+
+    self: ContactsListPresenterScope =>
+
+    getContacts.execute returns contacts
+
+  }
+
+  trait ViewMocked {
+
+    self: ContactsListPresenterScope =>
+
+    view.getNewContactFirstName returns Some(contact.firstName)
+    view.getNewContactLastName returns Some(contact.lastName)
+    view.getNewContactPhoneNumber returns Some(contact.phoneNumber)
+
+  }
+
 }
 
 class ContactsListPresenterSpec
@@ -41,27 +67,24 @@ class ContactsListPresenterSpec
 
   "onInitialize" should {
 
-    "show welcome message on initialize" in new ContactsListPresenterScope {
-
-      getContacts.execute returns Seq.empty
+    "show welcome message on initialize" in
+      new ContactsListPresenterScope with EmptyContactList {
 
       presenter.onInitialize()
 
       there was one(view).showWelcomeMessage()
     }
 
-    "show empty case if the agenda is empty" in new ContactsListPresenterScope {
-
-      getContacts.execute returns Seq.empty
+    "show empty case if the agenda is empty" in
+      new ContactsListPresenterScope with EmptyContactList {
 
       presenter.onInitialize()
 
       there was one(view).showEmptyCase()
     }
 
-    "show contacts from the agenda on initialize" in new ContactsListPresenterScope {
-
-      getContacts.execute returns contacts
+    "show contacts from the agenda on initialize" in
+      new ContactsListPresenterScope with PopulatedContactList {
 
       presenter.onInitialize()
 
@@ -83,34 +106,24 @@ class ContactsListPresenterSpec
   "onAddContactOptionSelected" should {
 
     "show the contacts list with the new contact on contact added" in
-      new ContactsListPresenterScope {
+      new ContactsListPresenterScope with ViewMocked {
 
-        getContacts.execute returns Seq.empty
-
-        view.getNewContactFirstName returns contact.firstName
-        view.getNewContactLastName returns contact.lastName
-        view.getNewContactPhoneNumber returns contact.phoneNumber
+        getContacts.execute returns (Seq.empty, Seq(contact))
 
         addContact.execute(contact) returns contact
-
-        getContacts.execute returns Seq(contact)
 
         presenter.onInitialize()
         presenter.onAddContactOptionSelected()
 
         val captor = capture[Seq[Contact]]
-        there was two(view).showContacts(captor)
+        there was one(view).showContacts(captor)
         captor.value shouldEqual Seq(contact)
       }
 
     "show an error if the first name of the new contact is empty" in
-      new ContactsListPresenterScope {
+      new ContactsListPresenterScope with ViewMocked with EmptyContactList {
 
-        getContacts.execute returns Seq.empty
-
-        view.getNewContactFirstName returns ""
-        view.getNewContactLastName returns contact.lastName
-        view.getNewContactPhoneNumber returns contact.phoneNumber
+        view.getNewContactFirstName returns None
 
         presenter.onInitialize()
         presenter.onAddContactOptionSelected()
@@ -119,13 +132,9 @@ class ContactsListPresenterSpec
       }
 
     "show an error if the last name of the new contact is empty" in
-      new ContactsListPresenterScope {
+      new ContactsListPresenterScope with ViewMocked with EmptyContactList {
 
-        getContacts.execute returns Seq.empty
-
-        view.getNewContactFirstName returns contact.firstName
-        view.getNewContactLastName returns ""
-        view.getNewContactPhoneNumber returns contact.phoneNumber
+        view.getNewContactLastName returns None
 
         presenter.onInitialize()
         presenter.onAddContactOptionSelected()
@@ -134,13 +143,9 @@ class ContactsListPresenterSpec
       }
 
     "show an error if the phone number of the new contact is empty" in
-      new ContactsListPresenterScope {
+      new ContactsListPresenterScope with ViewMocked with EmptyContactList {
 
-        getContacts.execute returns Seq.empty
-
-        view.getNewContactFirstName returns contact.firstName
-        view.getNewContactLastName returns contact.lastName
-        view.getNewContactPhoneNumber returns ""
+        view.getNewContactPhoneNumber returns None
 
         presenter.onInitialize()
         presenter.onAddContactOptionSelected()
