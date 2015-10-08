@@ -28,18 +28,17 @@ object AgendaApplication extends App {
     presenter.onAddContactOptionSelected()
   }
 
-  private def getPresenter: ContactsListPresenter = {
-    val contactsListPresenter: ContactsListPresenter = AgendaServiceLocator.getContactsListPresenter
+  private[this] def getPresenter: ContactsListPresenter = {
+    val contactsListPresenter = AgendaServiceLocator.getContactsListPresenter
     hookPresenterStopEvent(contactsListPresenter)
     contactsListPresenter
   }
 
-  private def hookPresenterStopEvent(presenter: Presenter[_ <: View]) {
+  private[this] def hookPresenterStopEvent(presenter: Presenter[_ <: View]) =
     Runtime.getRuntime.addShutdownHook(new Thread() {
       override def run() {
         presenter.onStop()
       }
     })
-  }
 }
 

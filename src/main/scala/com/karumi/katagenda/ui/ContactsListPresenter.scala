@@ -27,11 +27,11 @@ trait View extends commonUi.View {
 
   def showContacts(contactList: Seq[Contact])
 
-  def getNewContactFirstName: String
+  def getNewContactFirstName: Option[String]
 
-  def getNewContactLastName: String
+  def getNewContactLastName: Option[String]
 
-  def getNewContactPhoneNumber: String
+  def getNewContactPhoneNumber: Option[String]
 }
 
 class ContactsListPresenter(
@@ -39,46 +39,40 @@ class ContactsListPresenter(
   getContacts: GetContacts,
   addContact: AddContact) extends commonUi.Presenter[View](view) {
 
-  def onInitialize() {
+  def onInitialize() = {
     view.showWelcomeMessage()
     loadContactsList()
   }
 
-  def onStop() {
+  def onStop() = {
     view.showGoodbyeMessage()
   }
 
-  def onAddContactOptionSelected() {
-    val contactToAdd: Contact = requestNewContact
-    if (contactToAdd == null) {
-      view.showDefaultError()
-    }
-    else {
-      addContact.execute(contactToAdd)
+  def onAddContactOptionSelected() = requestNewContact match {
+    case Some(c) =>
+      addContact.execute(c)
       loadContactsList()
+    case _ =>
+      view.showDefaultError()
+  }
+
+
+  private[this] def requestNewContact: Option[Contact] = {
+    val maybeFirstName = view.getNewContactFirstName
+    val maybeLastName = view.getNewContactLastName
+    val maybePhoneNumber = view.getNewContactPhoneNumber
+    (maybeFirstName, maybeLastName, maybePhoneNumber) match {
+      case (Some(firstName), Some(lastName), Some(phoneNumber)) =>
+        Some(new Contact(firstName, lastName, phoneNumber))
+      case _ => None
     }
   }
 
-  private[this] def requestNewContact: Contact = {
-    val firstName: String = view.getNewContactFirstName
-    val lastName: String = view.getNewContactLastName
-    val phoneNumber: String = view.getNewContactPhoneNumber
-    var contact: Contact = null
-    if (isContactInfoValue(firstName, lastName, phoneNumber)) {
-      contact = new Contact(firstName, lastName, phoneNumber)
-    }
-    contact
-  }
-
-  private[this] def isContactInfoValue(firstName: String, lastName: String, phoneNumber: String): Boolean =
-    !firstName.isEmpty && !lastName.isEmpty && !phoneNumber.isEmpty
-
-  private[this] def loadContactsList() {
+  private[this] def loadContactsList() = {
     val contactList: Seq[Contact] = getContacts.execute
     if (contactList.isEmpty) {
       view.showEmptyCase()
-    }
-    else {
+    } else {
       view.showContacts(contactList)
     }
   }

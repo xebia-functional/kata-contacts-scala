@@ -38,17 +38,17 @@ class SysOutContactsListView extends View {
     }
   }
 
-  def getNewContactFirstName: String = {
+  def getNewContactFirstName: Option[String] = {
     println("First name:")
     readLine
   }
 
-  def getNewContactLastName: String = {
+  def getNewContactLastName: Option[String] = {
     println("Last name:")
     readLine
   }
 
-  def getNewContactPhoneNumber: String = {
+  def getNewContactPhoneNumber: Option[String] = {
     println("Phone number:")
     readLine
   }
@@ -61,6 +61,10 @@ class SysOutContactsListView extends View {
     println("Your agenda is empty!")
   }
 
-  private def readLine: String = new Scanner(System.in).nextLine
+  private def readLine: Option[String] =
+    new Scanner(System.in).nextLine match {
+      case s if s.isEmpty => None
+      case s => Some(s)
+    }
 
 }

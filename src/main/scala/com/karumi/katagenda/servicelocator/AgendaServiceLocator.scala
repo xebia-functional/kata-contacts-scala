@@ -28,32 +28,25 @@ object AgendaServiceLocator {
   
   val inMemoryDataSource: DataSource[Contact] = new InMemoryDataSource[Contact]
 
-  def getContactsListPresenter: ContactsListPresenter = {
-    val sysOutView: SysOutContactsListView = getSysOutView
-    new ContactsListPresenter(sysOutView, getContacts, addContact())
-  }
+  def getContactsListPresenter: ContactsListPresenter =
+    new ContactsListPresenter(
+      view = getSysOutView,
+      getContacts = getContacts,
+      addContact = addContact())
 
-  private def getSysOutView: SysOutContactsListView = {
+  private[this] def getSysOutView: SysOutContactsListView =
     new SysOutContactsListView
-  }
 
-  private[this] def getContacts: GetContacts = {
-    val agenda: Agenda = getAgenda
-    new GetContacts(agenda)
-  }
+  private[this] def getContacts: GetContacts =
+    new GetContacts(getAgenda)
 
-  private def addContact(): AddContact = {
-    val agenda: Agenda = getAgenda
-    new AddContact(agenda)
-  }
+  private[this] def addContact(): AddContact =
+    new AddContact(getAgenda)
 
-  private def getAgenda: Agenda = {
-    val contactsRepository: Repository[Contact] = getContactsRepository
-    new Agenda(contactsRepository)
-  }
+  private[this] def getAgenda: Agenda =
+    new Agenda(getContactsRepository)
 
-  private def getContactsRepository: Repository[Contact] = {
+  private[this] def getContactsRepository: Repository[Contact] =
     new ContactsRepository(inMemoryDataSource)
-  }
 }
 
