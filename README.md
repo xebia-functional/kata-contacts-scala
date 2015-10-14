@@ -1,0 +1,1 @@
+A program is a Coproduct of it's algebras 
