@@ -11,4 +11,6 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % "7.1.4",
   "org.specs2" %% "specs2-core" % "3.6.4" % "test",
-  "org.specs2" %% "specs2-mock" % "3.6.4" % "test")
+  "org.specs2" %% "specs2-scalacheck" % "3.6.4" % "test",
+  "org.specs2" %% "specs2-mock" % "3.6.4" % "test",
+  "com.github.alexarchambault" %% "scalacheck-shapeless_1.12" % "0.3.1" % "test")
